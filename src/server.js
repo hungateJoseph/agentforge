@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import http from "node:http";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildAdvice, listServices } from "./advice.js";
@@ -39,7 +40,7 @@ async function api(req, res, url, envFile) {
   const env = readEnv(envFile);
 
   if (req.method === "GET" && url.pathname === "/api/catalog") {
-    return send(res, 200, { categories: CATEGORIES, services: listServices(), orchestrators: ORCHESTRATORS, envFile });
+    return send(res, 200, { categories: CATEGORIES, services: listServices(), orchestrators: ORCHESTRATORS, envFile, envFileDisplay: tildify(envFile) });
   }
   if (req.method === "GET" && url.pathname === "/api/env") {
     const saved = {};
@@ -74,6 +75,12 @@ async function api(req, res, url, envFile) {
     return send(res, 200, await discover(url.pathname.slice("/api/discover/".length), env.GITHUB_TOKEN));
   }
   send(res, 404, { error: "Not found" });
+}
+
+// The full path is kept for the API; the page shows it relative to home.
+function tildify(p) {
+  const home = os.homedir();
+  return p.startsWith(home) ? "~" + p.slice(home.length) : p;
 }
 
 function serveStatic(res, pathname) {

@@ -50,12 +50,26 @@ async function drag(fromName, toName) {
 await page.goto(base);
 await page.waitForSelector(".service");
 
-await step("ticking accounts adds nodes to the canvas", async () => {
+await step("an example network shows before anything is ticked", async () => {
+  await page.waitForFunction(() => document.querySelectorAll("#canvas .node").length === 4);
+  assert.equal(await page.locator("#network-example").isVisible(), true);
+  assert.equal(await page.locator("#arrows path.arrow").count(), 3);
+  const names = await page.$$eval("#canvas .node-name", (els) => els.map((e) => e.textContent));
+  assert.ok(names.includes("Twilio") && names.includes("Amazon (shopping)"));
+});
+
+await step("the network sits above the report", async () => {
+  const order = await page.evaluate(() => [...document.querySelectorAll("main > section")].map((s) => s.id));
+  assert.ok(order.indexOf("network") < order.indexOf("report"));
+});
+
+await step("ticking accounts replaces the example with your own nodes", async () => {
   for (const name of ["Twilio", "Amazon (shopping)", "AgentMail", "Anthropic (Claude API)"]) {
     await page.locator(".service", { hasText: name }).locator("input[type=checkbox]").check();
   }
   await page.locator("#canvas").scrollIntoViewIfNeeded();
-  await page.waitForFunction(() => document.querySelectorAll("#canvas .node").length === 4);
+  await page.waitForFunction(() => document.querySelectorAll("#canvas .node").length === 4 && document.querySelector("#network-example").hidden);
+  assert.equal(await page.locator("#arrows path.arrow").count(), 0);
   const statuses = await page.$$eval("#canvas .node-status", (els) => els.map((e) => e.textContent));
   assert.ok(statuses.includes("no key") && statuses.includes("no API"));
 });

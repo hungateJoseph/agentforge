@@ -35,12 +35,27 @@
   }
 
   function persist() {
+    if (net.example) return;
     localStorage.setItem("agentforge.network", JSON.stringify({ nodes: Object.fromEntries(net.nodes), bridges: net.bridges }));
   }
 
+  // Shown until the user has ticked anything: a text-message agent that can
+  // email and hand an Amazon order to a person.
+  const EXAMPLE = {
+    nodes: { twilio: { x: 40, y: 150 }, anthropic: { x: 330, y: 150 }, agentmail: { x: 620, y: 60 }, amazon: { x: 620, y: 250 } },
+    bridges: [{ from: "twilio", to: "anthropic" }, { from: "anthropic", to: "agentmail" }, { from: "anthropic", to: "amazon" }],
+  };
+
   // Nodes follow the accounts ticked above; anything added here is ticked too.
   function syncNodes() {
-    const selected = af.selectedIds().filter((id) => af.service(id));
+    const own = af.selectedIds().filter((id) => af.service(id));
+    net.example = own.length === 0;
+    if (net.example) {
+      net.nodes = new Map(Object.entries(EXAMPLE.nodes));
+      net.bridges = EXAMPLE.bridges.map((b) => ({ ...b }));
+      return;
+    }
+    const selected = own;
     for (const id of selected) if (!net.nodes.has(id)) net.nodes.set(id, freeSpot());
     for (const id of [...net.nodes.keys()]) if (!selected.includes(id)) net.nodes.delete(id);
     net.bridges = net.bridges.filter((b) => net.nodes.has(b.from) && net.nodes.has(b.to));
@@ -58,7 +73,7 @@
     const ids = [...net.nodes.keys()];
     net.pairs = ids.length > 1 ? (await af.api("/api/network", { nodes: ids })).pairs : {};
     render();
-    persist();
+    if (!net.example) persist();
   }
 
   function render() {
@@ -67,6 +82,7 @@
     drawArrows();
     renderBridges();
     $("#network-empty").hidden = net.nodes.size > 0;
+    $("#network-example").hidden = !net.example;
   }
 
   function nodeEl(id, pos) {

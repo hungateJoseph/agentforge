@@ -28,6 +28,8 @@ test("serves the page and the catalogue", async () => {
   const catalog = await (await fetch(base + "/api/catalog")).json();
   assert.ok(catalog.services.length > 5);
   assert.equal(catalog.envFile, envFile);
+  assert.equal(typeof catalog.envFileDisplay, "string");
+  assert.ok(!catalog.envFileDisplay.startsWith(os.homedir()) || !envFile.startsWith(os.homedir()));
 });
 
 test("saves known keys, masks them on read, rejects unknown ones", async () => {

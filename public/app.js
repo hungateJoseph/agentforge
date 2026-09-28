@@ -36,7 +36,7 @@
   async function load() {
     state.catalog = await api("/api/catalog");
     state.saved = (await api("/api/env")).saved;
-    $("#env-path").textContent = `Keys go to ${state.catalog.envFile}`;
+    $("#env-path").textContent = `Keys go to ${state.catalog.envFileDisplay || state.catalog.envFile}`;
     try {
       const remembered = JSON.parse(localStorage.getItem("agentforge.selected") || "[]");
       remembered.forEach((id) => state.selected.add(id));
