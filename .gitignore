@@ -1,0 +1,6 @@
+node_modules/
+.env
+.env.*
+!.env.example
+agentforge-plan.md
+.DS_Store

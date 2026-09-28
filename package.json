@@ -1,0 +1,29 @@
+{
+  "name": "agentforge",
+  "version": "0.1.0",
+  "description": "Tell it which accounts you have, store the keys locally, and see how they fit together into an agent.",
+  "license": "MIT",
+  "author": "hungateJoseph",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "agentforge": "bin/agentforge.js"
+  },
+  "scripts": {
+    "start": "node bin/agentforge.js",
+    "test": "node --test test/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hungateJoseph/agentforge.git"
+  },
+  "keywords": [
+    "agents",
+    "api-keys",
+    "n8n",
+    "mcp",
+    "local"
+  ]
+}
