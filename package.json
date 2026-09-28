@@ -13,7 +13,8 @@
   },
   "scripts": {
     "start": "node bin/agentforge.js",
-    "test": "node --test test/"
+    "test": "node --test test/",
+    "test:browser": "node test/browser/network.mjs"
   },
   "repository": {
     "type": "git",
@@ -25,5 +26,8 @@
     "n8n",
     "mcp",
     "local"
-  ]
+  ],
+  "devDependencies": {
+    "playwright": "^1.63.0"
+  }
 }

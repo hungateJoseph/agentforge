@@ -50,6 +50,13 @@ Everything the app knows lives in `src/catalog.js`: the services, their keys, wh
 npm test
 ```
 
+There is also a browser test that drives the Build Network canvas in a real Chrome: ticks accounts, drags bridges, moves a node, saves a key and reloads. It needs Playwright, which is the only development dependency:
+
+```sh
+npm install
+npm run test:browser
+```
+
 ## License
 
 MIT
