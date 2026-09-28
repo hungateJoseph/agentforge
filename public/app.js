@@ -189,8 +189,21 @@
     const r = await api(`/api/discover/${s.id}`);
     body.innerHTML = "";
     if (r.error) body.append(el("p", "result bad", r.error));
+    if (r.official?.length) {
+      body.append(el("h3", "", "Official"));
+      for (const repo of r.official) {
+        const row = el("div", "repo");
+        const link = document.createElement("a");
+        link.href = repo.url;
+        link.target = "_blank";
+        link.rel = "noopener";
+        link.textContent = repo.name;
+        row.append(link, el("div", "", repo.what));
+        body.append(row);
+      }
+    }
     for (const [kind, title] of [["mcp", "MCP servers"], ["n8n", "n8n community nodes"]]) {
-      body.append(el("h3", "", title));
+      body.append(el("h3", "", title + " on GitHub"));
       if (!r[kind]?.length) {
         body.append(el("p", "muted small", "Nothing found."));
         continue;

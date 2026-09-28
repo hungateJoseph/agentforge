@@ -62,6 +62,7 @@ export const SERVICES = [
     ],
     getKey: "https://console.twilio.com/",
     docs: "https://www.twilio.com/docs/usage/api",
+    official: [{ name: "twilio-labs/mcp", url: "https://github.com/twilio-labs/mcp", what: "Twilio's MCP server exposing its APIs as tools" }],
     summary: "SMS, voice calls and WhatsApp over a REST API.",
     notes: [
       "Fully self-serve: sign up, buy a number, use the SID and token.",
@@ -82,6 +83,7 @@ export const SERVICES = [
     keys: [{ env: "AGENTMAIL_API_KEY", label: "API key" }],
     getKey: "https://console.agentmail.to/",
     docs: "https://docs.agentmail.to/",
+    official: [{ name: "agentmail-to/agentmail-mcp", url: "https://github.com/agentmail-to/agentmail-mcp", what: "AgentMail's MCP server" }, { name: "agentmail-to/agentmail-python", url: "https://github.com/agentmail-to/agentmail-python", what: "Python SDK" }],
     summary: "Email inboxes made for agents: create an address, send, receive, thread, with webhooks for inbound mail.",
     notes: [
       "Self-serve API keys. SDKs for Python and TypeScript, plus an MCP server, so it works with a bare model key.",
@@ -183,6 +185,7 @@ export const SERVICES = [
     ],
     getKey: "https://console.aws.amazon.com/iam/",
     docs: "https://docs.aws.amazon.com/",
+    official: [{ name: "awslabs/mcp", url: "https://github.com/awslabs/mcp", what: "AWS's open source MCP servers" }],
     summary: "Storage (S3), archives, image and video services, and anything else in the AWS catalogue.",
     notes: [
       "Create an IAM user with only the permissions the agent needs; never use root keys.",
@@ -197,6 +200,7 @@ export const SERVICES = [
     keys: [{ env: "STRIPE_SECRET_KEY", label: "Secret key", hint: "sk_live_... or sk_test_...", secret: true }],
     getKey: "https://dashboard.stripe.com/apikeys",
     docs: "https://docs.stripe.com/api",
+    official: [{ name: "stripe/ai", url: "https://github.com/stripe/ai", what: "Stripe's agent toolkit and MCP server" }],
     summary: "Invoices, payment links, charges and refunds.",
     notes: ["Stripe ships an official MCP server and an agent toolkit, and n8n has a Stripe node. Start with a test key."],
     verify: { method: "GET", url: "https://api.stripe.com/v1/balance", headers: (k) => ({ Authorization: `Bearer ${k.STRIPE_SECRET_KEY}` }) },
@@ -221,6 +225,7 @@ export const SERVICES = [
     keys: [{ env: "GITHUB_TOKEN", label: "Personal access token", hint: "ghp_... or github_pat_...", secret: true }],
     getKey: "https://github.com/settings/tokens",
     docs: "https://docs.github.com/rest",
+    official: [{ name: "github/github-mcp-server", url: "https://github.com/github/github-mcp-server", what: "GitHub's official MCP server" }],
     summary: "Repositories, issues and pull requests.",
     notes: ["GitHub's official MCP server covers most of what an agent wants. A fine-grained token limits the blast radius."],
     verify: { method: "GET", url: "https://api.github.com/user", headers: (k) => ({ Authorization: `Bearer ${k.GITHUB_TOKEN}`, "User-Agent": "agentforge" }) },

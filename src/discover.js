@@ -17,7 +17,7 @@ export async function discover(id, token) {
   if (cache.has(id)) return cache.get(id);
 
   const short = service.name.split(" ")[0];
-  const result = { service: id, mcp: [], n8n: [], error: null };
+  const result = { service: id, official: service.official ?? [], mcp: [], n8n: [], error: null };
   for (const kind of ["mcp", "n8n"]) {
     try {
       result[kind] = await search(QUERIES[kind](short), token);

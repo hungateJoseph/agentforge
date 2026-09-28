@@ -56,3 +56,8 @@ test("listed services never expose verify internals", () => {
     assert.equal("verify" in s, false);
   }
 });
+
+test("official integrations point at GitHub", () => {
+  for (const s of SERVICES) for (const o of s.official ?? []) assert.match(o.url, /^https:\/\/github\.com\//);
+  assert.ok(SERVICES.find((s) => s.id === "twilio").official.length > 0);
+});
