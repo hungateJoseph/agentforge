@@ -1,0 +1,282 @@
+// Everything the app knows about the services people have accounts with and
+// the platforms that wire them into agents. Kept as plain data so it is easy
+// to correct as vendors change their APIs.
+//
+// access levels:
+//   direct   - a public API you can call with your own key
+//   partner  - an API exists but keys come from a partnership or approval process
+//   limited  - a public API that covers part of the job (say, carts but not checkout)
+//   none     - no API for what people want an agent to do
+
+export const CATEGORIES = [
+  { id: "model", name: "AI models", blurb: "The brain. Every agent needs at least one of these." },
+  { id: "comms", name: "Messaging and email", blurb: "How the agent talks to you and to other people." },
+  { id: "commerce", name: "Shopping and errands", blurb: "Ordering things and getting them delivered." },
+  { id: "people", name: "Hiring people", blurb: "Marketplaces where a person does the work." },
+  { id: "cloud", name: "Cloud and storage", blurb: "Where files live and where code runs." },
+  { id: "money", name: "Payments", blurb: "Invoices, charges and refunds." },
+  { id: "work", name: "Work tools", blurb: "Calendars, chat and code the agent can read and write." },
+];
+
+export const SERVICES = [
+  {
+    id: "anthropic",
+    name: "Anthropic (Claude API)",
+    category: "model",
+    access: "direct",
+    role: "model",
+    keys: [{ env: "ANTHROPIC_API_KEY", label: "API key", hint: "sk-ant-..." }],
+    getKey: "https://console.anthropic.com/settings/keys",
+    docs: "https://platform.claude.com/docs",
+    summary: "Claude models over a REST API, with built-in tool use, a web search tool and an MCP connector for remote tool servers.",
+    directAgent: true,
+    notes: [
+      "Your key alone is enough for an agent that reasons, searches the web and calls tools.",
+      "The Messages API can attach remote MCP servers directly, so services with an MCP server plug in without an orchestrator.",
+    ],
+    verify: { method: "GET", url: "https://api.anthropic.com/v1/models", headers: (k) => ({ "x-api-key": k.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" }) },
+  },
+  {
+    id: "openai",
+    name: "OpenAI",
+    category: "model",
+    access: "direct",
+    role: "model",
+    keys: [{ env: "OPENAI_API_KEY", label: "API key", hint: "sk-..." }],
+    getKey: "https://platform.openai.com/api-keys",
+    docs: "https://platform.openai.com/docs",
+    summary: "GPT models over a REST API, with function calling, hosted tools and the Agents SDK.",
+    directAgent: true,
+    notes: ["Your key alone is enough for an agent that reasons and calls tools you define."],
+    verify: { method: "GET", url: "https://api.openai.com/v1/models", headers: (k) => ({ Authorization: `Bearer ${k.OPENAI_API_KEY}` }) },
+  },
+  {
+    id: "twilio",
+    name: "Twilio",
+    category: "comms",
+    access: "direct",
+    keys: [
+      { env: "TWILIO_ACCOUNT_SID", label: "Account SID", hint: "AC..." },
+      { env: "TWILIO_AUTH_TOKEN", label: "Auth token", secret: true },
+      { env: "TWILIO_FROM_NUMBER", label: "Sending number", hint: "+1..." },
+    ],
+    getKey: "https://console.twilio.com/",
+    docs: "https://www.twilio.com/docs/usage/api",
+    summary: "SMS, voice calls and WhatsApp over a REST API.",
+    notes: [
+      "Fully self-serve: sign up, buy a number, use the SID and token.",
+      "Sending SMS to US numbers needs A2P 10DLC registration first; that is a form, not code.",
+      "Twilio Labs publishes an official MCP server, and n8n has a Twilio node with an SMS trigger.",
+    ],
+    verify: {
+      method: "GET",
+      url: (k) => `https://api.twilio.com/2010-04-01/Accounts/${k.TWILIO_ACCOUNT_SID}.json`,
+      headers: (k) => ({ Authorization: "Basic " + Buffer.from(`${k.TWILIO_ACCOUNT_SID}:${k.TWILIO_AUTH_TOKEN}`).toString("base64") }),
+    },
+  },
+  {
+    id: "agentmail",
+    name: "AgentMail",
+    category: "comms",
+    access: "direct",
+    keys: [{ env: "AGENTMAIL_API_KEY", label: "API key" }],
+    getKey: "https://console.agentmail.to/",
+    docs: "https://docs.agentmail.to/",
+    summary: "Email inboxes made for agents: create an address, send, receive, thread, with webhooks for inbound mail.",
+    notes: [
+      "Self-serve API keys. SDKs for Python and TypeScript, plus an MCP server, so it works with a bare model key.",
+      "This is the usual answer to 'how does my agent get its own email address'.",
+    ],
+    verify: { method: "GET", url: "https://api.agentmail.to/v0/inboxes?limit=1", headers: (k) => ({ Authorization: `Bearer ${k.AGENTMAIL_API_KEY}` }) },
+  },
+  {
+    id: "gmail",
+    name: "Gmail / Google Workspace",
+    category: "comms",
+    access: "direct",
+    oauth: true,
+    keys: [
+      { env: "GOOGLE_CLIENT_ID", label: "OAuth client ID" },
+      { env: "GOOGLE_CLIENT_SECRET", label: "OAuth client secret", secret: true },
+    ],
+    getKey: "https://console.cloud.google.com/apis/credentials",
+    docs: "https://developers.google.com/gmail/api",
+    summary: "Your own mailbox and calendar, through OAuth rather than a plain key.",
+    notes: [
+      "There is no API key for Gmail. You create an OAuth app in Google Cloud and grant it access once in a browser.",
+      "Orchestrators handle the OAuth dance for you: n8n, Composio and Zapier all have Gmail connectors.",
+    ],
+  },
+  {
+    id: "amazon",
+    name: "Amazon (shopping)",
+    category: "commerce",
+    access: "none",
+    keys: [],
+    docs: "https://developer.amazonservices.com/",
+    summary: "Buying things on Amazon with a personal account.",
+    notes: [
+      "There is no public API for placing orders from a personal Amazon account, so an API key is not something you can get.",
+      "Amazon's own agent, Alexa for Shopping with Buy for Me, works inside Amazon's apps and is not something your agent can call.",
+      "The Selling Partner API is for sellers, not buyers. Amazon Business has a purchasing API, but only for approved business accounts.",
+    ],
+    workarounds: [
+      "Have the agent prepare the order (product, quantity, address) and hand you a link to confirm. Reliable and allowed.",
+      "Open an Amazon Business account and apply for its Purchasing API if you order in volume.",
+      "A browser-automation step (Playwright driven by the model) can add to cart and check out, but it is brittle and may breach Amazon's terms.",
+    ],
+  },
+  {
+    id: "instacart",
+    name: "Instacart",
+    category: "commerce",
+    access: "limited",
+    keys: [{ env: "INSTACART_API_KEY", label: "Developer Platform key" }],
+    getKey: "https://docs.instacart.com/developer_platform_api/",
+    docs: "https://docs.instacart.com/developer_platform_api/",
+    summary: "Groceries from local stores in about an hour.",
+    notes: [
+      "The Instacart Developer Platform is self-serve and has an MCP tutorial. It builds shopping lists and recipe pages and hands the user a link to Instacart.",
+      "There is no checkout endpoint: the person finishes the order in Instacart's own app. Good for 'build my cart', not for 'order it'.",
+    ],
+    workarounds: ["Let the agent assemble the cart and text you the link; you tap pay."],
+  },
+  {
+    id: "fiverr",
+    name: "Fiverr",
+    category: "people",
+    access: "none",
+    keys: [],
+    docs: "https://www.fiverr.com/",
+    summary: "Freelancers for design, editing, writing and more.",
+    notes: [
+      "Fiverr has no public API. Scraper libraries exist but break often and are against Fiverr's terms.",
+    ],
+    workarounds: [
+      "Make hiring a human step: the agent writes the brief, picks a gig, and you place the order. AgentMail or Twilio can carry the brief to you.",
+      "For work that a model can do itself (copy, simple edits), skip the marketplace and let the agent do it.",
+    ],
+  },
+  {
+    id: "taskrabbit",
+    name: "TaskRabbit",
+    category: "people",
+    access: "partner",
+    keys: [{ env: "TASKRABBIT_API_KEY", label: "Partner API key" }],
+    getKey: "https://developer.taskrabbit.com/",
+    docs: "https://developer.taskrabbit.com/docs/overview",
+    summary: "A person for local, hands-on jobs: pickups, setup, errands.",
+    notes: [
+      "TaskRabbit's Partner API can quote, show availability and book, but keys come from a TaskRabbit partnership manager, not a signup form.",
+      "Without a partner key, treat it like Fiverr: the agent drafts the task and a person books it.",
+    ],
+  },
+  {
+    id: "aws",
+    name: "AWS",
+    category: "cloud",
+    access: "direct",
+    keys: [
+      { env: "AWS_ACCESS_KEY_ID", label: "Access key ID", hint: "AKIA..." },
+      { env: "AWS_SECRET_ACCESS_KEY", label: "Secret access key", secret: true },
+      { env: "AWS_REGION", label: "Region", hint: "us-east-1" },
+    ],
+    getKey: "https://console.aws.amazon.com/iam/",
+    docs: "https://docs.aws.amazon.com/",
+    summary: "Storage (S3), archives, image and video services, and anything else in the AWS catalogue.",
+    notes: [
+      "Create an IAM user with only the permissions the agent needs; never use root keys.",
+      "AWS runs an official managed MCP server that exposes its APIs under your IAM identity, and n8n has nodes for S3, Lambda, Rekognition and more.",
+    ],
+  },
+  {
+    id: "stripe",
+    name: "Stripe",
+    category: "money",
+    access: "direct",
+    keys: [{ env: "STRIPE_SECRET_KEY", label: "Secret key", hint: "sk_live_... or sk_test_...", secret: true }],
+    getKey: "https://dashboard.stripe.com/apikeys",
+    docs: "https://docs.stripe.com/api",
+    summary: "Invoices, payment links, charges and refunds.",
+    notes: ["Stripe ships an official MCP server and an agent toolkit, and n8n has a Stripe node. Start with a test key."],
+    verify: { method: "GET", url: "https://api.stripe.com/v1/balance", headers: (k) => ({ Authorization: `Bearer ${k.STRIPE_SECRET_KEY}` }) },
+  },
+  {
+    id: "slack",
+    name: "Slack",
+    category: "work",
+    access: "direct",
+    keys: [{ env: "SLACK_BOT_TOKEN", label: "Bot token", hint: "xoxb-...", secret: true }],
+    getKey: "https://api.slack.com/apps",
+    docs: "https://api.slack.com/",
+    summary: "Team chat the agent can post to and read from.",
+    notes: ["Create a Slack app, add bot scopes, install it to your workspace, copy the bot token."],
+    verify: { method: "POST", url: "https://slack.com/api/auth.test", headers: (k) => ({ Authorization: `Bearer ${k.SLACK_BOT_TOKEN}` }) },
+  },
+  {
+    id: "github",
+    name: "GitHub",
+    category: "work",
+    access: "direct",
+    keys: [{ env: "GITHUB_TOKEN", label: "Personal access token", hint: "ghp_... or github_pat_...", secret: true }],
+    getKey: "https://github.com/settings/tokens",
+    docs: "https://docs.github.com/rest",
+    summary: "Repositories, issues and pull requests.",
+    notes: ["GitHub's official MCP server covers most of what an agent wants. A fine-grained token limits the blast radius."],
+    verify: { method: "GET", url: "https://api.github.com/user", headers: (k) => ({ Authorization: `Bearer ${k.GITHUB_TOKEN}`, "User-Agent": "agentforge" }) },
+  },
+];
+
+// Ways to wire services into an agent. `covers` lists the service ids each one
+// connects to out of the box; anything else needs custom code or a human step.
+export const ORCHESTRATORS = [
+  {
+    id: "mcp",
+    name: "Model + MCP servers",
+    kind: "code-light",
+    url: "https://modelcontextprotocol.io/",
+    summary: "Give a model key a set of MCP servers and let the model call them. No workflow tool in the middle.",
+    covers: ["anthropic", "openai", "twilio", "agentmail", "aws", "stripe", "slack", "github", "instacart"],
+    needs: "A model key. Anthropic's API attaches remote MCP servers directly; other models need an MCP client such as the Agents SDK or a small script.",
+  },
+  {
+    id: "n8n",
+    name: "n8n",
+    kind: "workflow",
+    url: "https://n8n.io/",
+    summary: "Self-hostable workflow builder with an AI Agent node, triggers and hundreds of app nodes. Free to run on your own machine.",
+    covers: ["anthropic", "openai", "twilio", "gmail", "aws", "stripe", "slack", "github"],
+    needs: "Docker or Node to run it locally. Credentials are entered in n8n's own UI, so copy them from your .env.",
+  },
+  {
+    id: "composio",
+    name: "Composio",
+    kind: "tool-hub",
+    url: "https://composio.dev/",
+    summary: "A hosted hub of authenticated tools (Gmail, Slack, GitHub and a thousand more) exposed to any agent framework through one MCP endpoint.",
+    covers: ["gmail", "slack", "github", "agentmail", "stripe"],
+    needs: "A Composio account. It handles OAuth for you, which is the easy way to give an agent your Gmail.",
+  },
+  {
+    id: "code",
+    name: "Code (LangGraph, CrewAI, Agents SDK)",
+    kind: "code",
+    url: "https://www.langchain.com/langgraph",
+    summary: "Write the agent yourself. Every service with an SDK or REST API is reachable; you own the glue.",
+    covers: ["anthropic", "openai", "twilio", "agentmail", "gmail", "aws", "stripe", "slack", "github", "instacart", "taskrabbit"],
+    needs: "Python or TypeScript and time. Best when you need control the visual tools do not give you.",
+  },
+  {
+    id: "zapier",
+    name: "Zapier or Make",
+    kind: "workflow",
+    url: "https://zapier.com/",
+    summary: "Hosted workflow builders with agent features and the widest app catalogues.",
+    covers: ["anthropic", "openai", "twilio", "gmail", "aws", "stripe", "slack", "github"],
+    needs: "A paid plan for anything beyond a few runs. Nothing runs on your machine.",
+  },
+];
+
+export function serviceById(id) {
+  return SERVICES.find((s) => s.id === id);
+}
