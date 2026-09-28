@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AgentForge</title>
+  <link rel="icon" href="icon.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <a class="brand" href="/">
+        <img src="icon.svg" alt="" width="28" height="28">
+        <span>AgentForge</span>
+      </a>
+      <span class="muted small" id="env-path"></span>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="intro">
+      <h1>Which accounts do you have?</h1>
+      <p class="lead">
+        Tick the services you already use. Add the keys you have and they are saved to a local
+        <code>.env</code> file on this machine. Then see what your accounts can do together as an agent,
+        and what is missing.
+      </p>
+    </section>
+
+    <section id="services"></section>
+
+    <section id="report" hidden>
+      <div class="report-head">
+        <h2>Your setup</h2>
+        <button class="ghost" id="download">Save as Markdown</button>
+      </div>
+      <div id="warnings"></div>
+      <div id="statuses" class="cards"></div>
+
+      <h3>What you can build</h3>
+      <div id="pairings" class="cards"></div>
+
+      <h3>Ways to wire it up</h3>
+      <p class="muted">Ranked by how many of your accounts each one connects to without custom code.</p>
+      <div id="orchestrators"></div>
+    </section>
+  </main>
+
+  <div class="modal" id="modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h2 id="modal-title"></h2>
+      <p class="muted" id="modal-summary"></p>
+      <form id="modal-form"></form>
+      <p class="small" id="modal-link"></p>
+      <div class="modal-actions">
+        <button class="ghost" type="button" id="modal-cancel">Cancel</button>
+        <button type="submit" form="modal-form" id="modal-save">Save to .env</button>
+      </div>
+      <p class="small muted">Saved locally. Nothing leaves this computer unless you press Test, which sends one read-only request to the service.</p>
+    </div>
+  </div>
+
+  <div class="discover" id="discover" hidden>
+    <div class="modal-card">
+      <h2 id="discover-title"></h2>
+      <div id="discover-body"></div>
+      <div class="modal-actions">
+        <button class="ghost" type="button" id="discover-close">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
