@@ -37,7 +37,8 @@ By default keys go to `.env` in the directory you started from. Point `--env` so
    - what you can build with the combination, and whether it is ready or needs a missing piece;
    - a ranking of orchestrators by how many of your accounts they connect without custom code.
 4. **Find integrations.** Searches GitHub for MCP servers and n8n community nodes for any service.
-5. **Save as Markdown** to keep the plan.
+5. **Build Network.** Your accounts appear as nodes on a canvas. Drag from the dot on one to another to propose a bridge, say Twilio to AWS. While you drag, the target shows whether that bridge is possible (directly, through an orchestrator, only up to a point, only with a partner key, only as a human step, or not at all), how it would be done, and whether each end has a key saved and tested. Bridges you drop are listed with the details, and a summary says which single tool could carry all of them.
+6. **Save as Markdown** to keep the plan.
 
 ## Adding or correcting a service
 

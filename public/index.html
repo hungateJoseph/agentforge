@@ -47,6 +47,36 @@
     </section>
   </main>
 
+  <main class="wrap">
+    <section id="network" class="network">
+      <div class="report-head">
+        <div>
+          <h2>Build Network</h2>
+          <p class="muted">Drag from the dot on one account to another to say "what happens here should lead to something there". You get an answer while you drag.</p>
+        </div>
+        <div class="toolbar">
+          <select id="add-node"><option value="">Add an account…</option></select>
+          <button class="ghost" id="clear-network">Clear bridges</button>
+        </div>
+      </div>
+      <div id="canvas" class="canvas">
+        <svg id="arrows" class="arrows"></svg>
+        <p id="network-empty" class="muted canvas-empty">Tick some accounts above, or add one here, and they appear as nodes.</p>
+      </div>
+      <div class="legend">
+        <span><i style="background:#15803d"></i>direct</span>
+        <span><i style="background:#1d4ed8"></i>with an orchestrator</span>
+        <span><i style="background:#b45309"></i>partial or partner key</span>
+        <span><i style="background:#c2410c"></i>human step</span>
+        <span><i style="background:#b91c1c"></i>not possible</span>
+      </div>
+      <div id="network-summary" class="notice info" hidden></div>
+      <div id="bridges" class="cards"></div>
+    </section>
+  </main>
+
+  <div class="hint" id="hint" hidden></div>
+
   <div class="modal" id="modal" hidden>
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <h2 id="modal-title"></h2>
@@ -72,5 +102,6 @@
   </div>
 
   <script src="app.js"></script>
+  <script src="network.js"></script>
 </body>
 </html>

@@ -3,6 +3,7 @@ import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildAdvice, listServices } from "./advice.js";
+import { evaluateNetwork } from "./bridges.js";
 import { CATEGORIES, ORCHESTRATORS, SERVICES } from "./catalog.js";
 import { discover } from "./discover.js";
 import { mask, readEnv, writeEnv } from "./envfile.js";
@@ -60,6 +61,11 @@ async function api(req, res, url, envFile) {
     const body = await json(req);
     const ids = Array.isArray(body.selected) ? body.selected.filter((s) => typeof s === "string") : [];
     return send(res, 200, buildAdvice(ids, env));
+  }
+  if (req.method === "POST" && url.pathname === "/api/network") {
+    const body = await json(req);
+    const ids = Array.isArray(body.nodes) ? body.nodes.filter((s) => typeof s === "string") : [];
+    return send(res, 200, evaluateNetwork(ids, env));
   }
   if (req.method === "POST" && url.pathname.startsWith("/api/verify/")) {
     return send(res, 200, await verifyService(url.pathname.slice("/api/verify/".length), env));

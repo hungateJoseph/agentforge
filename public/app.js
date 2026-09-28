@@ -1,6 +1,32 @@
 (() => {
-  const state = { catalog: null, saved: {}, selected: new Set(), advice: null };
+  const state = { catalog: null, saved: {}, selected: new Set(), advice: null, verified: {} };
   const $ = (sel) => document.querySelector(sel);
+  const listeners = [];
+  const changed = () => listeners.forEach((fn) => fn());
+
+  try {
+    state.verified = JSON.parse(localStorage.getItem("agentforge.verified") || "{}");
+  } catch {
+    state.verified = {};
+  }
+
+  // What network.js needs from this file.
+  window.af = {
+    api: (path, body) => api(path, body),
+    service: (id) => state.catalog?.services.find((s) => s.id === id),
+    nameOf: (id) => nameOf(id),
+    selectedIds: () => [...state.selected],
+    saved: () => state.saved,
+    verified: () => state.verified,
+    openModal: (s) => openModal(s),
+    select: (id) => {
+      state.selected.add(id);
+      localStorage.setItem("agentforge.selected", JSON.stringify([...state.selected]));
+      renderServices();
+      changed();
+    },
+    onChange: (fn) => listeners.push(fn),
+  };
 
   async function api(path, body) {
     const res = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {});
@@ -22,7 +48,19 @@
       if (s.keys.length && s.keys.every((k) => state.saved[k.env])) state.selected.add(s.id);
     }
     renderServices();
+    fillAddNode();
+    changed();
     if (state.selected.size) refreshAdvice();
+  }
+
+  function fillAddNode() {
+    const sel = $("#add-node");
+    for (const s of state.catalog.services) {
+      const opt = document.createElement("option");
+      opt.value = s.id;
+      opt.textContent = s.name;
+      sel.append(opt);
+    }
   }
 
   function renderServices() {
@@ -60,6 +98,7 @@
       card.classList.toggle("on", box.checked);
       localStorage.setItem("agentforge.selected", JSON.stringify([...state.selected]));
       updateCount();
+      changed();
     });
     label.append(box, " ", el("span", "name", s.name));
     row.append(label, el("span", `pill ${s.access}`, accessLabel(s)));
@@ -140,7 +179,11 @@
         const r = await api(`/api/verify/${s.id}`, {});
         result.textContent = r.message;
         result.className = "result " + (r.ok ? "ok" : "bad");
+        if (r.ok) state.verified[s.id] = new Date().toISOString();
+        else delete state.verified[s.id];
+        localStorage.setItem("agentforge.verified", JSON.stringify(state.verified));
         test.disabled = false;
+        changed();
       });
       actions.prepend(test);
     }
@@ -150,6 +193,7 @@
       await saveForm(s, form);
       closeModal();
       renderServices();
+      changed();
       if (state.selected.size) refreshAdvice();
     };
     modal.hidden = false;
@@ -163,6 +207,8 @@
       if (v) values[k.env] = v;
     }
     if (Object.keys(values).length) {
+      delete state.verified[s.id];
+      localStorage.setItem("agentforge.verified", JSON.stringify(state.verified));
       await api("/api/env", { values });
       state.saved = (await api("/api/env")).saved;
       state.selected.add(s.id);
