@@ -61,3 +61,19 @@ test("official integrations point at GitHub", () => {
   for (const s of SERVICES) for (const o of s.official ?? []) assert.match(o.url, /^https:\/\/github\.com\//);
   assert.ok(SERVICES.find((s) => s.id === "twilio").official.length > 0);
 });
+
+test("every service belongs to a known category", async () => {
+  const { CATEGORIES } = await import("../src/catalog.js");
+  const ids = new Set(CATEGORIES.map((c) => c.id));
+  for (const s of SERVICES) assert.ok(ids.has(s.category), `${s.id} has category ${s.category}`);
+});
+
+test("tutoring marketplaces become a shortlist-and-hand-off pairing", () => {
+  const a = buildAdvice(["varsitytutors", "preply", "anthropic", "twilio"]);
+  const p = a.pairings.find((x) => x.title === "Finding a tutor");
+  assert.ok(p);
+  assert.equal(p.ready, false);
+  assert.match(p.text, /Varsity Tutors, Preply/);
+  assert.match(p.text, /Twilio text/);
+  assert.ok(a.warnings.some((w) => /Varsity Tutors and Preply cannot be driven/.test(w.text)));
+});

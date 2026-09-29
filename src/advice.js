@@ -117,6 +117,19 @@ function pairings(has, models) {
       text: `${names} cannot be booked from a key you can sign up for. Make it a human step: the agent writes the brief and the budget, sends it to you through ${carrier}, and you place the order. TaskRabbit's Partner API changes that if a partnership manager gives you a key.`,
     });
   }
+  const tutoring = ["varsitytutors", "preply", "brighterly", "outschool"].filter(has);
+  if (tutoring.length) {
+    const names = tutoring.map((id) => serviceById(id).name).join(", ");
+    const carrier = has("twilio") ? "a Twilio text" : has("agentmail") ? "AgentMail" : has("slack") ? "Slack" : "its reply";
+    out.push({
+      title: "Finding a tutor",
+      uses: [...tutoring, model?.id].filter(Boolean),
+      ready: false,
+      text: model
+        ? `${names} ${tutoring.length === 1 ? "has" : "have"} no booking API, but the tutor pages are public. ${brain} can search them, shortlist five tutors with bios, ratings, reviews and rates, and send you the list through ${carrier}. Booking the first session stays with you.`
+        : `${names} can be searched by an agent once there is a model in the network; the shortlist and the booking hand-off need something to read the pages.`,
+    });
+  }
   if (has("aws") && model) {
     out.push({
       title: "Files and archives in the cloud",

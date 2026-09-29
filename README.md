@@ -1,6 +1,6 @@
 # AgentForge
 
-A small app you run on your own computer. Tell it which accounts you already have (Anthropic, OpenAI, Twilio, AgentMail, Amazon, Instacart, Fiverr, TaskRabbit, AWS, Stripe, Slack, GitHub, Gmail), paste in the keys you have, and it tells you what those accounts can do together as an agent, what cannot be done with a key at all, and which orchestrator (n8n, MCP servers, Composio, plain code, Zapier) covers the most of your set.
+A small app you run on your own computer. Tell it which accounts you already have (Anthropic, OpenAI, Twilio, AgentMail, Amazon, Instacart, Fiverr, TaskRabbit, AWS, Stripe, Slack, GitHub, Gmail, and the tutoring marketplaces Varsity Tutors, Preply, Brighterly and Outschool), paste in the keys you have, and it tells you what those accounts can do together as an agent, what cannot be done with a key at all, and which orchestrator (n8n, MCP servers, Composio, plain code, Zapier) covers the most of your set.
 
 Keys are written to a `.env` file on your machine and never uploaded. The app only reaches the internet when you ask it to: to test a key with a single read-only request, or to look on GitHub for community MCP servers and n8n nodes for a service.
 

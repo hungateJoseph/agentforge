@@ -16,6 +16,7 @@ export const CATEGORIES = [
   { id: "cloud", name: "Cloud and storage", blurb: "Where files live and where code runs." },
   { id: "money", name: "Payments", blurb: "Invoices, charges and refunds." },
   { id: "work", name: "Work tools", blurb: "Calendars, chat and code the agent can read and write." },
+  { id: "tutoring", name: "Tutoring", blurb: "Marketplaces where parents find a tutor. The agent can shortlist; a person books." },
 ];
 
 export const SERVICES = [
@@ -229,6 +230,61 @@ export const SERVICES = [
     summary: "Repositories, issues and pull requests.",
     notes: ["GitHub's official MCP server covers most of what an agent wants. A fine-grained token limits the blast radius."],
     verify: { method: "GET", url: "https://api.github.com/user", headers: (k) => ({ Authorization: `Bearer ${k.GITHUB_TOKEN}`, "User-Agent": "agentforge" }) },
+  },
+  {
+    id: "varsitytutors",
+    name: "Varsity Tutors",
+    category: "tutoring",
+    access: "none",
+    keys: [],
+    docs: "https://www.varsitytutors.com/",
+    summary: "The largest US tutor pool: K-12 subjects and SAT, ACT and PSAT prep, one-to-one or small group.",
+    notes: [
+      "No public API for searching or booking. Parents rate it about 4.2 of 5 on Trustpilot, highest among families prepping for exams.",
+      "The agent can read public tutor pages and reviews to build a shortlist with bios, ratings and rates, then hand you the links.",
+    ],
+    workarounds: ["Let the agent shortlist five tutors and text you the profiles; you book the first session yourself."],
+  },
+  {
+    id: "preply",
+    name: "Preply",
+    category: "tutoring",
+    access: "none",
+    keys: [],
+    docs: "https://preply.com/",
+    summary: "One-to-one tutors chosen from profiles, strongest for languages; the best parent rating of the marketplaces at 4.5 of 5.",
+    notes: [
+      "No public API. Tutor profiles, prices and reviews are public pages the agent can read.",
+      "Booking and trial lessons happen in your Preply account.",
+    ],
+    workarounds: ["Have the agent filter tutors by subject, budget and time zone and send you the top five; you book the trial."],
+  },
+  {
+    id: "brighterly",
+    name: "Brighterly",
+    category: "tutoring",
+    access: "none",
+    keys: [],
+    docs: "https://brighterly.com/",
+    summary: "K-8 math with a matched tutor; parents rate the tutors 4.5 of 5.",
+    notes: [
+      "No public API. Brighterly matches the tutor after a free assessment rather than letting you pick, so there is little to search.",
+    ],
+    workarounds: ["The agent can book nothing here; it can fill in the assessment request with the child's grade and goals and send you the link."],
+  },
+  {
+    id: "outschool",
+    name: "Outschool",
+    category: "tutoring",
+    access: "none",
+    keys: [],
+    docs: "https://outschool.com/",
+    summary: "Small-group live classes for kids on almost any subject; 82 percent of parent reviews are five stars.",
+    notes: [
+      "No public API. Class listings, schedules and reviews are public pages the agent can read.",
+      "Enrolment uses your Outschool account and its credit system.",
+    ],
+    workarounds: ["Let the agent find classes that fit the topic and the week's free slots and send you the links to enrol."],
   },
 ];
 
